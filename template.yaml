@@ -1,19 +1,19 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
-Description: Example of processing messages on an SQS queue with Lambda
+Description: Processing batch system messages on an SQS queue with Lambda
 Resources:
-  MySQSQueueFunction:
+  BatchSQSQueueFunction:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./index.js
       Handler: index.handler
       Runtime: nodejs8.10
       Events:
-        MySQSEvent:
+        BatchSQSEvent:
           Type: SQS
           Properties:
-            Queue: !GetAtt MySqsQueue.Arn
+            Queue: !GetAtt BatchSqsQueue.Arn
             BatchSize: 10
 
-  MySqsQueue:
+  BatchSqsQueue:
     Type: AWS::SQS::Queue
