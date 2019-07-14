@@ -6,6 +6,8 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: ./index.js
+      Description: process the batch data messages
+      FunctionName: batch-sqs-queue-process
       Handler: index.handler
       Runtime: nodejs8.10
       Events:
@@ -17,3 +19,5 @@ Resources:
 
   BatchSqsQueue:
     Type: AWS::SQS::Queue
+    Properties:
+      QueueName: batch-sqs-queue

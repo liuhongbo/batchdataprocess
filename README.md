@@ -16,3 +16,9 @@ After your CloudFormation Stack has completed creation, send a message to the SQ
 BATCH_SQS_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/123456789012/batch-sqs-queue; \
 aws sqs send-message --queue-url $BATCH_SQS_QUEUE_URL --message-body '{ "myMessage": "Hello SAM!" }'
 ```
+
+If you want to delete the stack
+
+```bash
+aws cloudformation delete-stack --stack-name 'batch-data-processor'
+```
