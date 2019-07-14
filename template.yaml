@@ -1,6 +1,12 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: Processing batch system messages on an SQS queue with Lambda
+Parameters:
+  CompanyParameter:
+    Type: String
+    Description: Company name
+    AllowedPattern: "[A-Za-z0-9]+"
+    ConstraintDescription: Company name must only contain uppercase and lowercase letters and numbers
 Resources:
   BatchSQSQueueFunction:
     Type: AWS::Serverless::Function
@@ -20,4 +26,4 @@ Resources:
   BatchSqsQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: batch-sqs-queue
+      QueueName: !Sub batch-sqs-queue-${CompanyParameter}
