@@ -22,8 +22,40 @@ Resources:
           Properties:
             Queue: !GetAtt BatchSqsQueue.Arn
             BatchSize: 10
-
+  BatchSqsPublisher:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Sub batch-sqs-queue-publisher-${CompanyParameter}
+      Path: "/"
+      Policies:
+      - PolicyName: giveaccesstoqueueonly
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - sqs:*
+            Resource:
+            - !GetAtt BatchSqsQueue.Arn
+          - Effect: Deny
+            Action:
+            - sqs:*
+            NotResource:
+            - !GetAtt BatchSqsQueue.Arn 
+  BatchSqsPublisherAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:    
+      UserName: 
+        !Ref BatchSqsPublisher
   BatchSqsQueue:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub batch-sqs-queue-${CompanyParameter}
+Outputs:      
+  PublisherAccessKey:
+    Description: batch sqs queue publisher iam access key
+    Value:
+      !Ref BatchSqsPublisherAccessKey        
+  PublisherSecretKey:
+    Description: batch sqs queue publisher iam secret key
+    Value: !GetAtt BatchSqsPublisherAccessKey.SecretAccessKey
