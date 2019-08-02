@@ -11,6 +11,7 @@ Resources:
   BatchSQSQueueFunction:
     Type: AWS::Serverless::Function
     Properties:
+      Role: !GetAtt BatchSQSQueueFunctionRole.Arn
       CodeUri: ./index.js
       Description: process the batch data messages
       FunctionName: batch-sqs-queue-process
@@ -22,6 +23,22 @@ Resources:
           Properties:
             Queue: !GetAtt BatchSqsQueue.Arn
             BatchSize: 10
+  BatchSQSQueueFunctionRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      RoleName: !Sub batch-sqs-queue-function-role-${CompanyParameter}
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole'      
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Action:
+              - 'sts:AssumeRole'
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com                               
   BatchSqsPublisher:
     Type: AWS::IAM::User
     Properties:
