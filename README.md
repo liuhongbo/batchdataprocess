@@ -17,8 +17,17 @@ BATCH_SQS_QUEUE_URL=https://sqs.us-east-1.amazonaws.com/123456789012/batch-sqs-q
 aws sqs send-message --queue-url $BATCH_SQS_QUEUE_URL --message-body '{ "myMessage": "Hello SAM!" }'
 ```
 
+If you want to check the logs of the lambda function
+
+```bash
+CURRENT_TIME=$(date +%s) 
+LOG_TIME=$(($CURRENT_TIME - 60)) 
+aws logs filter-log-events --log-group-name "/aws/lambda/batch-sqs-queue-process-eagle" --start-time $LOG_TIME
+```
+
 If you want to delete the stack
 
 ```bash
 aws cloudformation delete-stack --stack-name 'batch-data-processor'
 ```
+
