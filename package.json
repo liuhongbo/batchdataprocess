@@ -1,0 +1,25 @@
+{  
+  "name": "batchdataprocess",
+  "version": "1.0.0",
+  "description": "The AWS SAM application for processing batch messages on an SQS queue.",
+  "main": "./index.js",
+  "dependencies": {
+    "aws-sdk": "^2.515.0",
+    "axios": "^0.18.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "build": "sam build -m package.json --parameter-overrides 'ParameterKey=CompanyParameter,ParameterValue=eagle ParameterKey=UsernameParameter,ParameterValue=liuhongbo  ParameterKey=EnvironmentParameter,ParameterValue=prod'",
+    "start": "sam local invoke --env-vars env.json --debug-port 5858"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/liuhongbo/batchdataprocess.git"
+  },
+  "author": "liuhongbo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/liuhongbo/batchdataprocess/issues"
+  },
+  "homepage": "https://github.com/liuhongbo/batchdataprocess#readme"
+}
