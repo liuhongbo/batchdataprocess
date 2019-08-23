@@ -7,6 +7,16 @@ Parameters:
     Description: Company name
     AllowedPattern: "[A-Za-z0-9]+"
     ConstraintDescription: Company name must only contain uppercase and lowercase letters and numbers
+  UsernameParameter:
+    Type: String
+    Description: Username of the administrator
+  EnvironmentParameter:
+    Type: String
+    Default: prod
+    AllowedValues:
+      - prod
+      - staging
+    Description: Environment of the application execution    
 Resources:
   BatchSQSQueueFunction:
     Type: AWS::Serverless::Function
@@ -17,6 +27,11 @@ Resources:
       FunctionName: batch-sqs-queue-process
       Handler: index.handler
       Runtime: nodejs8.10
+      Timeout: 8
+      Environment: 
+        Variables:
+          ENV: !Sub ${EnvironmentParameter}
+          COMPANY: !Sub ${CompanyParameter}      
       Events:
         BatchSQSEvent:
           Type: SQS
@@ -29,7 +44,19 @@ Resources:
       RoleName: !Sub batch-sqs-queue-function-role-${CompanyParameter}
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
-        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole'      
+        - 'arn:aws:iam::aws:policy/service-role/AWSLambdaSQSQueueExecutionRole'
+      Policies:
+      - PolicyName: giveaccesstossmparameteronly
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+          - Effect: Allow
+            Action:
+            - 'ssm:GetParameter'
+            - 'ssm:GetParametersByPath'
+            Resource: 
+            - arn:aws:ssm:*:*:parameter/prod/batchsqsqueueprocess/istrada/*
+            - !Sub arn:aws:ssm:*:*:parameter/prod/batchsqsqueueprocess/${CompanyParameter}/apicredentials                       
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -68,6 +95,54 @@ Resources:
     Type: AWS::SQS::Queue
     Properties:
       QueueName: !Sub batch-sqs-queue-${CompanyParameter}
+  ParameterStoreApiCredentialsEncryptionKey:
+    Type: AWS::KMS::Key
+    Properties:
+      Description: 'Encryption key for api credentials saved in the Parameter Store'
+      Enabled: True
+      EnableKeyRotation: False
+      KeyPolicy:
+        Version: '2012-10-17'
+        Id: 'key-default-1'
+        Statement:
+          -
+            Sid: 'Allow administration of the key & encryption of new values'
+            Effect: Allow
+            Principal:
+              AWS:
+                - !Sub 'arn:aws:iam::${AWS::AccountId}:user/${UsernameParameter}'
+            Action:
+              - 'kms:Create*'
+              - 'kms:Encrypt'
+              - 'kms:Describe*'
+              - 'kms:Enable*'
+              - 'kms:List*'
+              - 'kms:Put*'
+              - 'kms:Update*'
+              - 'kms:Revoke*'
+              - 'kms:Disable*'
+              - 'kms:Get*'
+              - 'kms:Delete*'
+              - 'kms:ScheduleKeyDeletion'
+              - 'kms:CancelKeyDeletion'
+            Resource: '*'
+          -
+            Sid: 'Allow use of the key'
+            Effect: Allow
+            Principal:
+              AWS: !GetAtt BatchSQSQueueFunctionRole.Arn
+            Action:
+              - 'kms:Encrypt'
+              - 'kms:Decrypt'
+              - 'kms:ReEncrypt*'
+              - 'kms:GenerateDataKey*'
+              - 'kms:DescribeKey'
+            Resource: '*'
+  ParameterStoreApiCredentialsEncryptionKeyAlias:
+    Type: AWS::KMS::Alias
+    Properties:
+      AliasName: !Sub alias/batch-sqs-queue-process-encryptkey-${CompanyParameter}
+      TargetKeyId: !GetAtt ParameterStoreApiCredentialsEncryptionKey.Arn      
 Outputs:      
   PublisherAccessKey:
     Description: batch sqs queue publisher iam access key
