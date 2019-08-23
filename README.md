@@ -36,13 +36,6 @@ debug
 ```bash
 sam build -m package.json --parameter-overrides 'ParameterKey=CompanyParameter,ParameterValue=eagle ParameterKey=UsernameParameter,ParameterValue=liuhongbo  ParameterKey=EnvironmentParameter,ParameterValue=prod'
 sam local invoke -e event.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/batchresult-create.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/customer-create.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/job-create.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/loadstatus-begin.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/project-create.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/ticket-create.json  --env-vars env.json --debug-port 5858
-sam local invoke -e ./event-data/truck-create.json  --env-vars env.json --debug-port 5858
 
 npm build
 npm start -- -e event.json
